@@ -4,9 +4,16 @@ let types = document.querySelector("#type");
 
 /* === MAIN === */
 
-loadData2();
-select.addEventListener("change", function refresh() {
-    loadData2();
+loadData2("null");
+types.addEventListener("change", function refresh() {
+    let done = false;
+    for (let child of types.children) {
+        if (child.children.item(0).checked) {
+            loadData2(`${child.children.item(0).id}`);
+            done = true
+        }
+    }
+    if (!done) loadData2("null")
 });
 
 /* === FUNCTION === */
@@ -18,11 +25,11 @@ async function loadData1(gen) {
     for (let i = 0; i < Object.keys(data).length; i++) addPokemon(data[i]);
 }
 
-async function loadData2() {
+async function loadData2(type) {
     main.innerHTML = "";
     const data = await fetch("./data/pokemon.json") .then(response => response.json()) .catch(error => alert("Ereur : " + error));
-    for (let i = 0; i < Object.keys(data.pokemon).length; i++) addPokemon(data.pokemon[i]);
-    console.log(getDataByType(data.pokemon, "fire"));
+    const newData = getDataByType(data.pokemon, type);
+    for (let i = 0; i < Object.keys(newData).length; i++) addPokemon(newData[i]);
 }
 
 function addPokemon(pokemon) {
@@ -65,7 +72,7 @@ function returnTypes(pokemonType) {
 }
 
 function getDataByType(data, type) {
-    let newData = data.filter(pokemon => pokemon.types.includes(type));
+    let newData = (type == "null") ? data : data.filter(pokemon => pokemon.types.includes(type));
     return newData
 }
 
